@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="app.js"></script>
+</head>
+
+<body>
+    <div class="div1" style="text-align:center;border-style:ridge;border-width:50px;border-color:rgb(143, 36, 217);">
+        <br><br>
+        <form action="/api/users" method="post">
+            <label for="">User Name : </label>
+            <input type="text" name="username"><br><br>
+            <label for="">E-mail id: </label>
+            <input type="email" name="email"><br><br>
+            <label for="">Address : </label>
+            <input type="text" name="address"><br><br>
+            <label for="">Phone No : </label>
+            <input type="number" name="phone_no" maxlength="10"><br><br>
+            <label for="">Password : </label>
+            <input type="password" name="password"><br><br>
+            <button type="submit" name="submit">Submit</button>
+        </form>
+        <br><br>
+    </div>
+    <script>
+        // Bind the forms
+        function bindForms() {
+            document.querySelector("form")
+                .addEventListener("submit", function(e) {
+
+                    // Stop it from submitting
+                    e.preventDefault();
+                    var formId = this.id;
+                    var path = this.action;
+                    var method = this.method.toUpperCase();
+
+                    // Turn the inputs into a payload object
+                    var payload = {};
+                    var elements = this.elements;
+                    for (var i = 0; i < elements.length; i++) {
+                        if (elements[i].type !== 'submit') {
+                            //var valueOfElement = elements[i].type == 'checkbox' ? elements[i].checked : elements[i].value;
+                            var valueOfElement = elements[i].value;
+                            payload[elements[i].name] = valueOfElement;
+                        }
+                    }
+
+                    // console.log(payload);
+
+                    // var token = getToken();
+                    // console.log(token);
+                    // if (!token) {
+                        // console.log("Token not found!!");
+                        // Display error and redirect to login page
+                        // return;
+                    // }
+                    var headers = {};
+                    // Submit the request//
+                    // setAuthTokenHeader(headers, token);// Submit the request// console.log(path, method, payload);
+                    submitRequest(path, method, payload, headers, handleSignIn);
+                });
+        }
+
+        function handleSignIn(err, tokenObj) {
+            if (!err) {
+                console.log("Sign in successful");
+                // Save the token to local storage
+                saveToken(tokenObj);
+                                // res.redirect('');
+                // Redirect to another page
+                window.location.pathname='login.html';
+            } else {
+                // handle error
+                console.log(err);
+                var divplaceholder = "placeholder";
+                console.log("Sign in failed");
+                displayError(divplaceholder, "Sign in failed. Try Again");
+            }
+
+        }
+
+        bindForms();
+    </script>
+</body>
+
+</html>

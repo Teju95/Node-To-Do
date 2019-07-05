@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>To Do List</title>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="to-do.css">
+
+</head>
+
+<body onload="myFunction()">
+    <div>
+        <p class="one">My Tasks</p>
+    </div>
+    <h1 style="font-family:monospace;font-size:40px;padding-left:20px;">My ToDo List</h1>
+    <table style="text-align:center;" id="table1" align="center" border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table><br>
+    <div class="f1">
+        <form id="form1" align="center" action="/api/todo" method="post">
+            <label>
+                <p style="font-size:20px;font-weight:bold;">Item name : </p>
+                <input type="text" name="name" size="50px" style="padding:10px;" required>
+            </label>
+            <label>
+                <p style="font-size:20px;font-weight:bold;">Category : </p>
+                <select style="padding:10px;" name="category" required>
+                    <option>Select a Category</option>
+                    <option value="Grocery">Grocery</option>
+                    <option value="Health">Health</option>
+                    <option value="Birthday's">Birthday's</option>
+                    <option value="Work">Work</option>
+                    <option value="Social">Social</option>
+                    <option value="Reminders">Reminders</option>
+                    <option value="Customize">Customize</option>
+                </select>
+            </label>
+            <label>
+                <p style="font-size:20px;font-weight:bold;">Priority : </p>
+                <select style="padding:10px;" name="priority" required>
+                    <option>Select a Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </label><br><br><br>
+            <button id="btn1" type="submit" name="button" style="color:white;padding:10px;background-color:rgb(38, 26, 172);border:0;">Add Tasks</button><br><br>
+        </form>
+    </div>
+    <script type="text/javascript">
+        var a = location.search;
+        a = a.replace("?", "");
+        function bindForms() {
+            document.querySelector("form")
+                .addEventListener("submit", function(e) {
+                    e.preventDefault();
+					var d = new Date();
+                    var path = this.action;
+                    var method = this.method.toUpperCase();
+                    var payload = {
+                        user_id: a,
+						status:"unchecked",
+						date : d
+                    };
+                    var elements = this.elements;
+                    for (var i = 0; i < elements.length; i++) {
+                        if (elements[i].type !== 'submit') {
+                            var valueOfElement = elements[i].value;
+                            payload[elements[i].name] = valueOfElement;
+                        }
+                    }
+                    var token = getToken();
+                    if (!token) {
+                        console.log("Token not found!!");
+                        return;
+                    }
+                    var headers = {};
+                    var name = e.target[0].value;
+                    var category = e.target[1].value;
+                    var priority = e.target[2].value;
+                    var date = new Date();
+                    var table = document.getElementById("table1");
+                    var tr = table.insertRow(-1);
+					// tr.id = a;
+                    var tcell = tr.insertCell(-1);
+                    tcell.innerHTML = name;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = category;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = priority;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = date;
+                    tcell = tr.insertCell(-1);
+                    var checkButton = document.createElement("input");
+                    checkButton.setAttribute("type", "checkbox");
+                    checkButton.setAttribute("onclick", "datachange(a,this)");
+                    checkButton.setAttribute("id", "checkbox1");
+                    tcell.appendChild(checkButton);
+                    var editButton = document.createElement("button");
+                    editButton.setAttribute("type", "button");
+                    editButton.setAttribute("class", "edit");
+                    editButton.setAttribute("onclick", "editData(this)");
+                    editButton.innerHTML = "Edit";
+                    tcell.appendChild(editButton);
+                    var deleteButton = document.createElement("button");
+                    deleteButton.setAttribute("type", "button");
+                    deleteButton.setAttribute("class", "delete1");
+                    deleteButton.setAttribute("onclick", "delData(a,this)");
+                    deleteButton.innerHTML = "Delete";
+                    tcell.appendChild(deleteButton);
+                    setAuthTokenHeader(headers, token); // Submit the request// console.log(path, method, payload);
+					// console.log(pathx, method, payload, headers);
+					submitRequest(path, method, payload, headers, handleSignIn);
+                });
+        }
+
+        function handleSignIn(err, tokenObj) {
+            if (!err) {
+                console.log("Task saved successfully");
+                saveToken(tokenObj);
+            } else {
+                console.log(err);
+                var divplaceholder = "placeholder";
+                console.log("Sign in failed");
+                displayError(divplaceholder, "Sign in failed. Try Again");
+            }
+
+        }
+
+        function handleTodo(err, data) {
+			// console.log(data);
+            if (!err) {
+                for (var j = 0; j < data.length; j++) {
+                    var obj1 = data[j];
+                    var table = document.getElementById("table1");
+                    var tr = table.insertRow(-1);
+                    // tr.id = obj1.id;
+                    var tcell = tr.insertCell(-1);
+                    tcell.innerHTML = obj1.name;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = obj1.category;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = obj1.priority;
+                    tcell = tr.insertCell(-1);
+                    tcell.innerHTML = obj1.date;
+                    tcell = tr.insertCell(-1);
+                    var checkButton = document.createElement("input");
+                    checkButton.setAttribute("type", "checkbox");
+                    checkButton.setAttribute("onclick", "datachange(a,this)");
+                    if (obj1.status == "checked") {
+                        checkButton.setAttribute("checked", "true");
+                        var editButton = document.createElement("button");
+                        editButton.setAttribute("type", "button");
+                        editButton.setAttribute("class", "edit");
+                        editButton.setAttribute("onclick", "editData(this)");
+                        editButton.setAttribute("disabled", "true");
+                    } else {
+                        var editButton = document.createElement("button");
+                        editButton.setAttribute("type", "button");
+                        editButton.setAttribute("class", "edit");
+                        editButton.setAttribute("onclick", "editData(this)");
+                    }
+                    checkButton.setAttribute("id", "checkbox1");
+                    tcell.appendChild(checkButton);
+                    editButton.innerHTML = "Edit";
+                    tcell.appendChild(editButton);
+                    var deleteButton = document.createElement("button");
+                    deleteButton.setAttribute("type", "button");
+                    deleteButton.setAttribute("onclick", "delData(a,this)");
+                    deleteButton.innerHTML = "Delete";
+                    tcell.appendChild(deleteButton);
+                }
+            } else {
+                console.log(err);
+            }
+        }
+        bindForms();
+        //
+
+		function datachange(id,row) {
+			var payload = {
+				user_id: a,
+				name: row.parentNode.parentNode.children[0].innerHTML,
+				category: row.parentNode.parentNode.children[1].innerHTML,
+				priority: row.parentNode.parentNode.children[2].innerHTML,
+				date: row.parentNode.parentNode.children[3].innerHTML,
+				status:"checked"
+			};
+			var headers = {};
+			var token = getToken();
+			if (!token) {
+				console.log("Token not found!!");
+				return;
+			}
+			setAuthTokenHeader(headers, token);
+			submitRequest('/api/todo/' + id, 'PUT', payload, headers, updatedTodo);
+            row.parentNode.children[1].disabled = "false"
+        }
+        //
+		function updatedTodo(err,data) {
+			if (!err) {
+				console.log(data);
+			} else {
+				console.log(err);
+			}
+		}
+        function editData(e) {
+            // console.log(e.parentNode.parentNode.children[0].innerHTML);
+            var b = document.getElementById("form1");
+            b[0].value = e.parentNode.parentNode.children[0].innerHTML;
+            b[1].value = e.parentNode.parentNode.children[1].innerHTML;
+            b[2].value = e.parentNode.parentNode.children[2].innerHTML;
+            b[3].type = "button";
+            var id = e.parentNode.parentNode.id;
+            // console.log(id);
+            b[3].innerHTML = "Update Tasks";
+            b[3].onclick = function() {
+                updateData(a)
+            };
+        }
+        //
+        function delData(id,s) {
+			var name = s.parentNode.parentNode.children[0].innerHTML;
+            var table = document.getElementById("table1");
+            table.deleteRow(s.parentNode.parentNode.rowIndex);
+			submitRequest('/api/todo/' + id+'/'+name, 'DELETE',undefined, undefined, delToDo);
+        }
+		function delToDo(err,data) {
+			if (!err) {
+				console.log(data);
+			} else {
+				console.log(err);
+			}
+		}
+        //
+        function updateData(a) {
+            var b = document.getElementById("form1");
+            var date = new Date();
+            var dd = date.getDate();
+            var mm = date.getMonth() + 1;
+            var yyyy = date.getFullYear();
+            var d = dd + "-" + mm + "-" + yyyy;
+            var payload = {
+                user_id: a,
+                name: b[0].value,
+                category: b[1].value,
+                priority: b[2].value,
+                date: d,
+                status: "unchecked"
+            }
+            var headers = {};
+            submitRequest('/api/todo/' + a, 'PUT', payload, headers, ()=>{
+				document.location.reload();
+			});
+        }
+        //
+        function updatedData(err,data) {
+            if (!err) {
+                console.log(data);
+            } else {
+                console.log(err);
+            }
+        }
+        function myFunction() {
+            var payload = {};
+            var headers = {};
+            submitRequest('/api/todo/' + a, 'GET', payload, headers, handleTodo);
+        }
+    </script>
+</body>
+
+</html>

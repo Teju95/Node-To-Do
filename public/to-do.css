@@ -1,0 +1,32 @@
+body{
+    margin: 0px;
+    background-color: rgb(16, 230, 140);
+}
+.one {
+    background-color: black;
+    color: rgb(187, 174, 174);
+    padding: 15px 0px 15px 50px;
+    font-size: 24px;
+    margin: 0px;
+}
+table{
+    border-collapse: collapse;
+    width: 70%;
+}
+table th{
+    padding: 20px;
+    background-color: rgb(197, 199, 212);
+}+
+button{
+    background-color: rgb(43, 25, 196);
+    padding: 10px;
+    border: 0px;*
+    border-radius: 5px;
+    margin-left: 205px;
+}
+.f1{
+    background-color: rgb(197, 199, 212);
+    width: 67%;
+    padding: 20px;
+    margin: auto;
+}

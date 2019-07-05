@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script src="app.js"></script>
+
+    <title></title>
+  </head>
+  <body>
+    <div class="one" style="text-align:center;border-style:ridge;border-width:50px;border-color:rgb(32, 197, 249);">
+    <form action="/api/session" method="post">
+            <label for="">E-mail id : </label>
+            <input type="email" name="email" ><br><br>
+            <label for="">Password : </label>
+            <input type="password" name="password" ><br><br>
+            <button type="submit">Submit</button>
+          </form><br>
+          <p>New user? <a href="sign_up.html">Sign Up</a></p>
+  </div>
+    <script>
+        // Bind the forms
+        function bindForms() {
+            document.querySelector("form")
+                .addEventListener("submit", function (e) {
+
+                    // Stop it from submitting
+                    e.preventDefault();
+                    var formId = this.id;
+                    var path = this.action;
+                    var method = this.method.toUpperCase();
+
+                    // Turn the inputs into a payload object
+                    var payload = {};
+                    var elements = this.elements;
+                    for (var i = 0; i < elements.length; i++) {
+                        if (elements[i].type !== 'submit') {
+                            //var valueOfElement = elements[i].type == 'checkbox' ? elements[i].checked : elements[i].value;
+                            var valueOfElement = elements[i].value;
+                            payload[elements[i].name] = valueOfElement;
+                        }
+                    }
+
+                    console.log(payload);
+
+                    var headers = {};
+                    // Submit the request
+                    submitRequest(path, method, payload, headers, handleSignIn);
+                });
+        }
+
+        function handleSignIn(err, tokenObj) {
+            if (!err) {
+                console.log("Log in successful");
+                // Save the token to local storage
+console.log(tokenObj);
+                saveToken(tokenObj);
+                window.location.href='to-do.html?'+tokenObj.id;
+                // Redirect to another page
+            }
+            else {
+                // handle error
+                var divplaceholder = "placeholder";
+                console.log("Log in failed");
+                displayError(divplaceholder, "Log in failed. Try Again");
+            }
+
+        }
+
+
+        bindForms();
+    </script>
+  </body>
+</html>
